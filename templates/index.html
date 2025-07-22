@@ -1,0 +1,337 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="text-center mb-4">Document Clustering & Topic Modeling</h1>
+        <p class="text-center text-muted mb-5">
+            Analyze text documents using K-means clustering and LDA topic modeling
+        </p>
+    </div>
+</div>
+
+<!-- Dataset Loading Section -->
+<div class="row">
+    <div class="col-md-6">
+        <div class="analysis-section">
+            <h3>📁 Load Dataset</h3>
+            
+            <!-- 20 Newsgroups Option -->
+            <div class="mb-4">
+                <h5>Option 1: 20 Newsgroups Dataset</h5>
+                <p class="text-muted">Load the classic 20 Newsgroups dataset for analysis.</p>
+                <button id="loadNewsgroups" class="btn btn-primary">
+                    Load 20 Newsgroups Dataset
+                </button>
+            </div>
+            
+            <!-- Custom Upload Option -->
+            <div class="mb-4">
+                <h5>Option 2: Upload Custom Dataset</h5>
+                <p class="text-muted">Upload your own text file (.txt) or CSV file (.csv).</p>
+                <div class="mb-3">
+                    <input type="file" class="form-control" id="fileInput" accept=".txt,.csv">
+                </div>
+                <button id="uploadFile" class="btn btn-success" disabled>
+                    Upload and Process
+                </button>
+            </div>
+            
+            <!-- Loading indicator -->
+            <div id="loadingIndicator" class="loading-spinner text-center">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-2">Processing dataset...</p>
+            </div>
+            
+            <!-- Dataset info -->
+            <div id="datasetInfo" style="display: none;" class="alert alert-info">
+                <h6>Dataset Loaded:</h6>
+                <p id="datasetDetails"></p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="analysis-section">
+            <h3>⚙️ Analysis Parameters</h3>
+            
+            <div class="mb-3">
+                <label for="nClusters" class="form-label">Number of Clusters (K-means):</label>
+                <input type="range" class="form-range" id="nClusters" min="2" max="20" value="8">
+                <div class="d-flex justify-content-between">
+                    <span>2</span>
+                    <span id="clustersValue">8</span>
+                    <span>20</span>
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <label for="nTopics" class="form-label">Number of Topics (LDA):</label>
+                <input type="range" class="form-range" id="nTopics" min="2" max="20" value="8">
+                <div class="d-flex justify-content-between">
+                    <span>2</span>
+                    <span id="topicsValue">8</span>
+                    <span>20</span>
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <label for="maxDocs" class="form-label">Maximum Documents to Process:</label>
+                <input type="range" class="form-range" id="maxDocs" min="100" max="5000" value="1000" step="100">
+                <div class="d-flex justify-content-between">
+                    <span>100</span>
+                    <span id="maxDocsValue">1000</span>
+                    <span>5000</span>
+                </div>
+            </div>
+            
+            <button id="runAnalysis" class="btn btn-warning btn-lg w-100" disabled>
+                🚀 Run Analysis
+            </button>
+            
+            <!-- Analysis loading -->
+            <div id="analysisLoading" class="loading-spinner text-center mt-3">
+                <div class="spinner-border text-warning" role="status">
+                    <span class="visually-hidden">Analyzing...</span>
+                </div>
+                <p class="mt-2">Running clustering and topic modeling...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Results Preview -->
+<div id="resultsPreview" style="display: none;" class="row mt-4">
+    <div class="col-12">
+        <div class="analysis-section">
+            <h3>📊 Analysis Results</h3>
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="metric-card text-center">
+                        <div class="metric-value" id="silhouetteScore">-</div>
+                        <div class="metric-label">Silhouette Score</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="metric-card text-center">
+                        <div class="metric-value" id="coherenceScore">-</div>
+                        <div class="metric-label">Coherence Score</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="metric-card text-center">
+                        <div class="metric-value" id="numClusters">-</div>
+                        <div class="metric-label">Clusters Found</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="metric-card text-center">
+                        <div class="metric-value" id="numTopics">-</div>
+                        <div class="metric-label">Topics Found</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-3">
+                <a href="/results" class="btn btn-primary btn-lg">
+                    View Detailed Results →
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- About Section -->
+<div class="row mt-5">
+    <div class="col-12">
+        <div class="analysis-section">
+            <h3>ℹ️ About This Tool</h3>
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>K-means Clustering</h5>
+                    <ul>
+                        <li>Groups similar documents together</li>
+                        <li>Uses TF-IDF vectorization</li>
+                        <li>Evaluated using Silhouette Score</li>
+                        <li>Good for finding document categories</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h5>LDA Topic Modeling</h5>
+                    <ul>
+                        <li>Discovers hidden topics in documents</li>
+                        <li>Uses Bag-of-Words representation</li>
+                        <li>Evaluated using Coherence Score</li>
+                        <li>Good for understanding document themes</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let datasetLoaded = false;
+
+// Update slider values
+document.getElementById('nClusters').addEventListener('input', function() {
+    document.getElementById('clustersValue').textContent = this.value;
+});
+
+document.getElementById('nTopics').addEventListener('input', function() {
+    document.getElementById('topicsValue').textContent = this.value;
+});
+
+document.getElementById('maxDocs').addEventListener('input', function() {
+    document.getElementById('maxDocsValue').textContent = this.value;
+});
+
+// Enable upload button when file is selected
+document.getElementById('fileInput').addEventListener('change', function() {
+    document.getElementById('uploadFile').disabled = !this.files.length;
+});
+
+// Load 20 Newsgroups dataset
+document.getElementById('loadNewsgroups').addEventListener('click', function() {
+    showLoading();
+    
+    fetch('/load_newsgroups', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        hideLoading();
+        if (data.success) {
+            showDatasetInfo(data);
+            datasetLoaded = true;
+            document.getElementById('runAnalysis').disabled = false;
+        } else {
+            alert('Error: ' + data.error);
+        }
+    })
+    .catch(error => {
+        hideLoading();
+        alert('Error loading dataset: ' + error);
+    });
+});
+
+// Upload custom file
+document.getElementById('uploadFile').addEventListener('click', function() {
+    const fileInput = document.getElementById('fileInput');
+    const file = fileInput.files[0];
+    
+    if (!file) {
+        alert('Please select a file first');
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    showLoading();
+    
+    fetch('/upload', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        hideLoading();
+        if (data.success) {
+            showDatasetInfo(data);
+            datasetLoaded = true;
+            document.getElementById('runAnalysis').disabled = false;
+        } else {
+            alert('Error: ' + data.error);
+        }
+    })
+    .catch(error => {
+        hideLoading();
+        alert('Error uploading file: ' + error);
+    });
+});
+
+// Run analysis
+document.getElementById('runAnalysis').addEventListener('click', function() {
+    if (!datasetLoaded) {
+        alert('Please load a dataset first');
+        return;
+    }
+    
+    const params = {
+        n_clusters: parseInt(document.getElementById('nClusters').value),
+        n_topics: parseInt(document.getElementById('nTopics').value),
+        max_docs: parseInt(document.getElementById('maxDocs').value)
+    };
+    
+    showAnalysisLoading();
+    
+    fetch('/analyze', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(params)
+    })
+    .then(response => response.json())
+    .then(data => {
+        hideAnalysisLoading();
+        if (data.success) {
+            showResults(data);
+        } else {
+            alert('Error: ' + data.error);
+        }
+    })
+    .catch(error => {
+        hideAnalysisLoading();
+        alert('Error running analysis: ' + error);
+    });
+});
+
+function showLoading() {
+    document.getElementById('loadingIndicator').style.display = 'block';
+}
+
+function hideLoading() {
+    document.getElementById('loadingIndicator').style.display = 'none';
+}
+
+function showAnalysisLoading() {
+    document.getElementById('analysisLoading').style.display = 'block';
+}
+
+function hideAnalysisLoading() {
+    document.getElementById('analysisLoading').style.display = 'none';
+}
+
+function showDatasetInfo(data) {
+    const info = document.getElementById('datasetInfo');
+    const details = document.getElementById('datasetDetails');
+    
+    let detailText = `<strong>${data.filename}</strong><br>`;
+    detailText += `Documents: ${data.n_documents}`;
+    if (data.n_categories) {
+        detailText += `<br>Categories: ${data.n_categories}`;
+    }
+    
+    details.innerHTML = detailText;
+    info.style.display = 'block';
+}
+
+function showResults(data) {
+    document.getElementById('silhouetteScore').textContent = data.clustering_metrics.silhouette_score.toFixed(3);
+    document.getElementById('coherenceScore').textContent = data.topic_metrics.coherence_c_v.toFixed(3);
+    document.getElementById('numClusters').textContent = data.n_clusters;
+    document.getElementById('numTopics').textContent = data.n_topics;
+    
+    document.getElementById('resultsPreview').style.display = 'block';
+}
+</script>
+{% endblock %}

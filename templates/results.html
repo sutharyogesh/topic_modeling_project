@@ -1,0 +1,282 @@
+{% extends "base.html" %}
+
+{% block title %}Analysis Results - Document Clustering & Topic Modeling{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">📊 Analysis Results</h1>
+        
+        <!-- Performance Metrics -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="metric-card text-center">
+                    <div class="metric-value">{{ "%.3f"|format(results.clustering_metrics.silhouette_score) }}</div>
+                    <div class="metric-label">Silhouette Score</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="metric-card text-center">
+                    <div class="metric-value">{{ "%.3f"|format(results.topic_metrics.coherence_c_v) }}</div>
+                    <div class="metric-label">Coherence Score</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="metric-card text-center">
+                    <div class="metric-value">{{ results.n_clusters }}</div>
+                    <div class="metric-label">Clusters</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="metric-card text-center">
+                    <div class="metric-value">{{ results.n_topics }}</div>
+                    <div class="metric-label">Topics</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Navigation Tabs -->
+        <ul class="nav nav-tabs" id="resultsTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview" type="button" role="tab">
+                    📈 Overview
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="clustering-tab" data-bs-toggle="tab" data-bs-target="#clustering" type="button" role="tab">
+                    🎯 Clustering
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="topics-tab" data-bs-toggle="tab" data-bs-target="#topics" type="button" role="tab">
+                    📝 Topics
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="visualizations-tab" data-bs-toggle="tab" data-bs-target="#visualizations" type="button" role="tab">
+                    📊 Visualizations
+                </button>
+            </li>
+        </ul>
+        
+        <!-- Tab Content -->
+        <div class="tab-content mt-4" id="resultsTabContent">
+            
+            <!-- Overview Tab -->
+            <div class="tab-pane fade show active" id="overview" role="tabpanel">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="analysis-section">
+                            <h4>🎯 K-means Clustering Results</h4>
+                            <table class="table table-sm">
+                                <tr>
+                                    <td><strong>Silhouette Score:</strong></td>
+                                    <td>{{ "%.3f"|format(results.clustering_metrics.silhouette_score) }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Number of Clusters:</strong></td>
+                                    <td>{{ results.clustering_metrics.n_clusters }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Cluster Balance:</strong></td>
+                                    <td>{{ "%.3f"|format(results.clustering_metrics.cluster_balance) }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Largest Cluster:</strong></td>
+                                    <td>{{ "%.1f"|format(results.clustering_metrics.largest_cluster_ratio * 100) }}%</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="analysis-section">
+                            <h4>📝 LDA Topic Modeling Results</h4>
+                            <table class="table table-sm">
+                                <tr>
+                                    <td><strong>Coherence Score (C_v):</strong></td>
+                                    <td>{{ "%.3f"|format(results.topic_metrics.coherence_c_v) }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Coherence Score (U_mass):</strong></td>
+                                    <td>{{ "%.3f"|format(results.topic_metrics.coherence_u_mass) }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Topic Diversity:</strong></td>
+                                    <td>{{ "%.3f"|format(results.topic_metrics.topic_diversity) }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Topic Balance:</strong></td>
+                                    <td>{{ "%.3f"|format(results.topic_metrics.topic_balance) }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Performance Interpretation -->
+                <div class="analysis-section">
+                    <h4>🎯 Performance Interpretation</h4>
+                    <div class="row">
+                        <div class="col-md-6">
+                            {% set sil_score = results.clustering_metrics.silhouette_score %}
+                            {% if sil_score > 0.5 %}
+                                <div class="alert alert-success">
+                                    <strong>✅ Excellent Clustering:</strong> Silhouette score > 0.5 indicates well-separated, cohesive clusters.
+                                </div>
+                            {% elif sil_score > 0.2 %}
+                                <div class="alert alert-warning">
+                                    <strong>⚠️ Moderate Clustering:</strong> Silhouette score between 0.2-0.5 suggests reasonable cluster structure.
+                                </div>
+                            {% else %}
+                                <div class="alert alert-danger">
+                                    <strong>❌ Poor Clustering:</strong> Silhouette score < 0.2 indicates weak cluster structure.
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6">
+                            {% set coh_score = results.topic_metrics.coherence_c_v %}
+                            {% if coh_score > 0.5 %}
+                                <div class="alert alert-success">
+                                    <strong>✅ Excellent Topics:</strong> Coherence score > 0.5 indicates highly interpretable topics.
+                                </div>
+                            {% elif coh_score > 0.3 %}
+                                <div class="alert alert-warning">
+                                    <strong>⚠️ Moderate Topics:</strong> Coherence score between 0.3-0.5 suggests reasonable topic quality.
+                                </div>
+                            {% else %}
+                                <div class="alert alert-danger">
+                                    <strong>❌ Poor Topics:</strong> Coherence score < 0.3 indicates low topic interpretability.
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Clustering Tab -->
+            <div class="tab-pane fade" id="clustering" role="tabpanel">
+                <div class="analysis-section">
+                    <h4>🎯 K-means Clustering Results</h4>
+                    
+                    <div class="row">
+                        {% for cluster_id, terms in results.cluster_terms.items() %}
+                        <div class="col-md-6 col-lg-4 mb-3">
+                            <div class="cluster-card">
+                                <h6><strong>Cluster {{ cluster_id }}</strong></h6>
+                                <p class="text-muted small">Top terms by TF-IDF score:</p>
+                                <div class="mb-2">
+                                    {% for term, score in terms[:8] %}
+                                    <span class="word-tag">{{ term }}</span>
+                                    {% endfor %}
+                                </div>
+                                <small class="text-muted">
+                                    Size: {{ results.clustering_metrics.cluster_sizes[cluster_id] }} documents
+                                </small>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Topics Tab -->
+            <div class="tab-pane fade" id="topics" role="tabpanel">
+                <div class="analysis-section">
+                    <h4>📝 LDA Topic Modeling Results</h4>
+                    
+                    <div class="row">
+                        {% for topic_id, words in results.topics %}
+                        <div class="col-md-6 col-lg-4 mb-3">
+                            <div class="topic-card">
+                                <h6><strong>Topic {{ topic_id }}</strong></h6>
+                                <p class="text-muted small">Top words by probability:</p>
+                                <div class="mb-2">
+                                    {% for word, prob in words[:8] %}
+                                    <span class="word-tag">{{ word }}</span>
+                                    {% endfor %}
+                                </div>
+                                <small class="text-muted">
+                                    Coherence: {{ "%.3f"|format(results.topic_metrics.avg_topic_coherence) }}
+                                </small>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Visualizations Tab -->
+            <div class="tab-pane fade" id="visualizations" role="tabpanel">
+                <div class="analysis-section">
+                    <h4>📊 Interactive Visualizations</h4>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <h5>t-SNE Cluster Visualization</h5>
+                            <div class="border rounded p-2">
+                                <iframe src="/static/plots/tsne_clusters.html" width="100%" height="400" frameborder="0"></iframe>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-4">
+                            <h5>Topic Distribution</h5>
+                            <div class="border rounded p-2">
+                                <iframe src="/static/plots/topic_distribution.html" width="100%" height="400" frameborder="0"></iframe>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-12">
+                            <h5>Cluster Size Distribution</h5>
+                            <canvas id="clusterChart" width="400" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Back to Home -->
+<div class="text-center mt-4 mb-5">
+    <a href="{{ url_for('index') }}" class="btn btn-secondary">
+        ← Back to Analysis
+    </a>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Create cluster size chart
+const ctx = document.getElementById('clusterChart').getContext('2d');
+const clusterSizes = {{ results.clustering_metrics.cluster_sizes | tojson }};
+
+const labels = Object.keys(clusterSizes).map(k => `Cluster ${k}`);
+const data = Object.values(clusterSizes);
+
+new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: labels,
+        datasets: [{
+            label: 'Number of Documents',
+            data: data,
+            backgroundColor: 'rgba(54, 162, 235, 0.6)',
+            borderColor: 'rgba(54, 162, 235, 1)',
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+</script>
+{% endblock %}
