@@ -89,6 +89,11 @@ python run_flask.py
 python main.py
 ```
 
+
+## 🎥 Demo
+
+![Demo](demo/demo.mp4)
+
 ## 📖 Usage
 
 ### 1. Streamlit Dashboard
@@ -242,13 +247,6 @@ class CustomPreprocessor(TextPreprocessor):
 | 5,000 docs  | 2 min        | 15s        | 3 min         | ~5.5 min   |
 | 18,000 docs | 6 min        | 45s        | 8 min         | ~15 min    |
 
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
 
 ## 📝 License
 
@@ -263,12 +261,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Streamlit**: Interactive web apps for ML
 - **Plotly**: Interactive visualizations
 
-## 📞 Support
-
-For questions, issues, or contributions:
-- 📧 Email: [your-email@example.com]
-- 🐛 Issues: [GitHub Issues](link-to-issues)
-- 📖 Documentation: [Project Wiki](link-to-wiki)
 
 ---
 
